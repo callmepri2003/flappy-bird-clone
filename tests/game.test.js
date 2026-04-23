@@ -116,4 +116,149 @@ describe('Game', () => {
       expect(() => game.draw()).not.toThrow();
     });
   });
+
+  // ── New premium-world tests ──────────────────────────────────────────────────
+
+  describe('screen shake', () => {
+    test('shakeFrames initialises to 0', () => {
+      expect(game.shakeFrames).toBe(0);
+    });
+
+    test('shakeFrames is set to 28 when bird is killed', () => {
+      game.state = STATES.PLAYING;
+      game._killBird();
+      expect(game.shakeFrames).toBe(28);
+    });
+
+    test('shakeFrames decrements each draw call while > 0', () => {
+      game.shakeFrames = 28;
+      game.draw();
+      expect(game.shakeFrames).toBe(27);
+    });
+
+    test('shakeFrames resets to 0 after 28 draw frames', () => {
+      game.shakeFrames = 28;
+      for (let i = 0; i < 28; i++) {
+        game.draw();
+      }
+      expect(game.shakeFrames).toBe(0);
+    });
+  });
+
+  describe('ember particles', () => {
+    test('embers array is initialised with exactly 18 entries', () => {
+      expect(Array.isArray(game.embers)).toBe(true);
+      expect(game.embers.length).toBe(18);
+    });
+
+    test('each ember has the required properties', () => {
+      for (const e of game.embers) {
+        expect(e).toHaveProperty('x');
+        expect(e).toHaveProperty('y');
+        expect(e).toHaveProperty('radius');
+        expect(e).toHaveProperty('opacity');
+        expect(e).toHaveProperty('vx');
+        expect(e).toHaveProperty('vy');
+        expect(e).toHaveProperty('life');
+        expect(e).toHaveProperty('decay');
+        expect(e).toHaveProperty('color');
+      }
+    });
+
+    test('ember radius is between 1 and 2.2', () => {
+      for (const e of game.embers) {
+        expect(e.radius).toBeGreaterThanOrEqual(1);
+        expect(e.radius).toBeLessThanOrEqual(2.2);
+      }
+    });
+
+    test('ember decay is 0.003', () => {
+      for (const e of game.embers) {
+        expect(e.decay).toBeCloseTo(0.003);
+      }
+    });
+  });
+
+  describe('parallax layers', () => {
+    test('parallaxLayers array has 3 entries', () => {
+      expect(Array.isArray(game.parallaxLayers)).toBe(true);
+      expect(game.parallaxLayers.length).toBe(3);
+    });
+
+    test('each layer has an xOffset property initialised to 0', () => {
+      for (const layer of game.parallaxLayers) {
+        expect(layer).toHaveProperty('xOffset');
+        expect(layer.xOffset).toBe(0);
+      }
+    });
+
+    test('each layer has a speed property', () => {
+      const expectedSpeeds = [0.45, 1.05, 1.8];
+      game.parallaxLayers.forEach((layer, i) => {
+        expect(layer).toHaveProperty('speed');
+        expect(layer.speed).toBeCloseTo(expectedSpeeds[i]);
+      });
+    });
+
+    test('layer xOffsets decrement by speed each update frame', () => {
+      game.state = STATES.PLAYING;
+      if (!game.bird) game.bird = new Bird();
+      if (!game.pipeManager) game.pipeManager = new PipeManager();
+      // snapshot offsets before update
+      const before = game.parallaxLayers.map(l => l.xOffset);
+      game.update(0);
+      game.parallaxLayers.forEach((layer, i) => {
+        // after one update frame, xOffset should have decreased by speed
+        // (or wrapped — check it moved)
+        const delta = before[i] - layer.xOffset;
+        // delta === speed OR layer wrapped (xOffset reset to near 0)
+        const wrapped = layer.xOffset >= 0 && layer.xOffset < layer.speed + 1;
+        expect(delta === layer.speed || wrapped).toBe(true);
+      });
+    });
+
+    test('layer xOffset wraps back toward 0 when it reaches -960', () => {
+      // Set xOffset to just past the tile width boundary
+      game.parallaxLayers[0].xOffset = -960;
+      // Simulate one update
+      game.state = STATES.PLAYING;
+      if (!game.bird) game.bird = new Bird();
+      if (!game.pipeManager) game.pipeManager = new PipeManager();
+      game.update(0);
+      // After wrap, xOffset should be >= -960
+      expect(game.parallaxLayers[0].xOffset).toBeGreaterThanOrEqual(-960);
+    });
+  });
+
+  describe('score pop animation', () => {
+    beforeEach(() => {
+      game.state = STATES.PLAYING;
+      if (!game.bird) game.bird = new Bird();
+      if (!game.pipeManager) game.pipeManager = new PipeManager();
+    });
+
+    test('scorePop initialises with scale 1.0 and frame 0', () => {
+      expect(game.scorePop).toBeDefined();
+      expect(game.scorePop.scale).toBeCloseTo(1.0);
+      expect(game.scorePop.frame).toBe(0);
+    });
+
+    test('scorePop scale is set to 1.32 when score increments', () => {
+      game.pipeManager.pipes = [{
+        x: BIRD_X - PIPE_WIDTH - 1,
+        topHeight: 100,
+        get bottomY() { return this.topHeight + PIPE_GAP; },
+        passed: false,
+      }];
+      game._updateScore();
+      expect(game.scorePop.scale).toBeCloseTo(1.32);
+      expect(game.scorePop.frame).toBe(0);
+    });
+
+    test('scorePop scale decays toward 1.0 each draw frame', () => {
+      game.scorePop = { scale: 1.32, frame: 0 };
+      game.draw();
+      expect(game.scorePop.scale).toBeLessThan(1.32);
+    });
+  });
 });
