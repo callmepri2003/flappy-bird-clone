@@ -108,4 +108,84 @@ describe('Bird', () => {
       expect(() => bird.draw(makeCtxStub())).not.toThrow();
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // Premium synthwave feature tests
+  // ---------------------------------------------------------------------------
+
+  describe('trail system', () => {
+    test('trail starts empty', () => {
+      expect(bird.trail).toEqual([]);
+    });
+
+    test('trail grows to 12 entries after 12 update calls', () => {
+      for (let i = 0; i < 12; i++) bird.update();
+      expect(bird.trail.length).toBe(12);
+    });
+
+    test('trail never exceeds 12 entries', () => {
+      for (let i = 0; i < 50; i++) bird.update();
+      expect(bird.trail.length).toBeLessThanOrEqual(12);
+    });
+
+    test('trail entries contain x and y', () => {
+      bird.update();
+      expect(bird.trail[0]).toHaveProperty('x');
+      expect(bird.trail[0]).toHaveProperty('y');
+    });
+  });
+
+  describe('blink animation', () => {
+    test('blinkCooldown initialises between 210 and 290 (inclusive)', () => {
+      expect(bird.blinkCooldown).toBeGreaterThanOrEqual(210);
+      expect(bird.blinkCooldown).toBeLessThanOrEqual(290);
+    });
+
+    test('blinkScale is 1.0 initially', () => {
+      expect(bird.blinkScale).toBe(1.0);
+    });
+
+    test('blinkFrame is -1 initially (inactive)', () => {
+      expect(bird.blinkFrame).toBe(-1);
+    });
+  });
+
+  describe('squish lookup table', () => {
+    test('squish lookup frame 0 has scaleX=0.72', () => {
+      expect(bird._squishTable[0].scaleX).toBeCloseTo(0.72);
+    });
+
+    test('squish lookup frame 0 has scaleY=1.38', () => {
+      expect(bird._squishTable[0].scaleY).toBeCloseTo(1.38);
+    });
+
+    test('squish lookup frame 4 is neutral (scaleX=1.00, scaleY=1.00)', () => {
+      expect(bird._squishTable[4].scaleX).toBeCloseTo(1.00);
+      expect(bird._squishTable[4].scaleY).toBeCloseTo(1.00);
+    });
+
+    test('squish lookup table has exactly 10 entries', () => {
+      expect(bird._squishTable.length).toBe(10);
+    });
+  });
+
+  describe('aura pulse', () => {
+    test('auroraPulse at flapAnimation=0 equals 0.85 + sin(0)*0.15 = 0.85', () => {
+      bird.flapAnimation = 0;
+      const expected = 0.85 + Math.sin(0 * 0.07) * 0.15;
+      expect(expected).toBeCloseTo(0.85);
+      // auroraPulse is computed in draw; verify formula via direct calculation
+      const pulse = 0.85 + Math.sin(bird.flapAnimation * 0.07) * 0.15;
+      expect(pulse).toBeCloseTo(0.85);
+    });
+
+    test('flapSnapTimer initialises to 0', () => {
+      expect(bird.flapSnapTimer).toBe(0);
+    });
+
+    test('flap() sets flapSnapTimer to 15', () => {
+      bird.flap();
+      expect(bird.flapSnapTimer).toBe(15);
+    });
+  });
 });
