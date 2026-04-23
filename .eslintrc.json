@@ -1,0 +1,37 @@
+{
+  "env": {
+    "browser": true,
+    "es2020": true,
+    "jest": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-undef": "error",
+    "no-console": "off",
+    "eqeqeq": "error",
+    "semi": ["error", "always"]
+  },
+  "globals": {
+    "CANVAS_WIDTH": "readonly",
+    "CANVAS_HEIGHT": "readonly",
+    "GRAVITY": "readonly",
+    "FLAP_STRENGTH": "readonly",
+    "GAME_SPEED": "readonly",
+    "BIRD_X": "readonly",
+    "BIRD_WIDTH": "readonly",
+    "BIRD_HEIGHT": "readonly",
+    "PIPE_WIDTH": "readonly",
+    "PIPE_GAP": "readonly",
+    "PIPE_SPAWN_INTERVAL": "readonly",
+    "GROUND_HEIGHT": "readonly",
+    "COLORS": "readonly",
+    "STATES": "readonly",
+    "Bird": "readonly",
+    "PipeManager": "readonly",
+    "UI": "readonly",
+    "Game": "readonly"
+  }
+}
