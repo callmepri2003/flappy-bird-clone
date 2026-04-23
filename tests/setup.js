@@ -14,7 +14,13 @@ global.GROUND_HEIGHT = 80;
 global.COLORS = {
   sky: '#70c5ce', skyBottom: '#a8e6cf',
   ground: '#ded895', groundDark: '#c8b560',
-  pipe: '#73bf2e', pipeDark: '#5a9922', pipeBorder: '#4a8a1a',
+  pipe: '#73bf2e', pipeDark: '#0a0010', pipeBorder: '#4a8a1a',
+  pipeViolet: '#1a0030', pipeMid: '#2d0055', pipeCenter: '#3d006e',
+  pipeCapEdge: '#0d0018', pipeCapDark: '#280050',
+  pipeCapViolet: '#4a0090', pipeCapBright: '#6600cc',
+  pipeCapRim: '#cc00ff',
+  pipeNeon: 'rgba(255,0,204,0.12)', pipeNeon2: 'rgba(255,0,204,0.06)',
+  pipeLeftHighlight: 'rgba(160,80,255,0.3)', pipeShadow: 'rgba(0,0,0,0.55)',
   bird: '#f7d358', birdWing: '#e8c000', birdEye: '#ffffff',
   birdPupil: '#333333', birdBeak: '#f0a030',
   score: '#ffffff', shadow: 'rgba(0,0,0,0.3)',
@@ -63,6 +69,7 @@ function makeCtxStub() {
     scale: noop, beginPath: noop, closePath: noop, fill: noop, stroke: noop,
     fillRect: noop, clearRect: noop, strokeRect: noop, arc: noop, arcTo: noop, ellipse: noop,
     moveTo: noop, lineTo: noop, quadraticCurveTo: noop, bezierCurveTo: noop,
+    rect: noop, clip: noop,
     fillText: jest.fn(), strokeText: noop,
     measureText: () => ({ width: 0 }),
     createLinearGradient: () => ({ addColorStop: noop }),
@@ -70,6 +77,7 @@ function makeCtxStub() {
     fillStyle: '', strokeStyle: '', lineWidth: 1, lineJoin: '', lineCap: '',
     shadowBlur: 0, shadowColor: '', shadowOffsetX: 0, shadowOffsetY: 0,
     font: '', textAlign: '', textBaseline: '', globalAlpha: 1,
+    globalCompositeOperation: 'source-over',
   };
 }
 global.makeCtxStub = makeCtxStub;
