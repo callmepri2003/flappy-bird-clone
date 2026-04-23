@@ -1,37 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-
-// Load all dependencies in script-tag order
-eval(fs.readFileSync(path.resolve(__dirname, '../src/bird.js'), 'utf8'));
-eval(fs.readFileSync(path.resolve(__dirname, '../src/pipes.js'), 'utf8'));
-eval(fs.readFileSync(path.resolve(__dirname, '../src/ui.js'), 'utf8'));
-
-// Stub canvas before loading game.js (which calls getElementById at module level)
-let _game;
-const canvasStub = {
-  getContext: () => makeCtxStub(),
-  addEventListener: () => {},
-  width: CANVAS_WIDTH,
-  height: CANVAS_HEIGHT,
-};
-document.getElementById = (id) => (id === 'gameCanvas' ? canvasStub : null);
-window.addEventListener = () => {};
-
-// game.js instantiates Game at the bottom — capture the instance
-const origGame = global.Game;
-eval(fs.readFileSync(path.resolve(__dirname, '../src/game.js'), 'utf8'));
+// Load dependencies in script-tag order
+loadSrc('../src/bird.js', 'Bird');
+loadSrc('../src/pipes.js', 'PipeManager');
+loadSrc('../src/ui.js', 'UI');
+// game.js auto-runs `new Game().init()` at the bottom — RAF is already stubbed in setup.js
+loadSrc('../src/game.js', 'Game');
 
 describe('Game', () => {
   let game;
 
   beforeEach(() => {
-    // Suppress the auto-start requestAnimationFrame
-    jest.spyOn(global, 'requestAnimationFrame').mockImplementation(() => 0);
     game = new Game();
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   describe('initial state', () => {
@@ -65,6 +43,9 @@ describe('Game', () => {
   describe('checkCollisions()', () => {
     beforeEach(() => {
       game.state = STATES.PLAYING;
+      // Ensure sub-systems are initialised
+      if (!game.bird) game.bird = new Bird();
+      if (!game.pipeManager) game.pipeManager = new PipeManager();
     });
 
     test('sets state to DEAD when bird is below ground', () => {
@@ -88,8 +69,13 @@ describe('Game', () => {
   });
 
   describe('score tracking', () => {
-    test('increments score when bird passes a pipe', () => {
+    beforeEach(() => {
       game.state = STATES.PLAYING;
+      if (!game.bird) game.bird = new Bird();
+      if (!game.pipeManager) game.pipeManager = new PipeManager();
+    });
+
+    test('increments score when bird passes a pipe', () => {
       game.pipeManager.pipes = [{
         x: BIRD_X - PIPE_WIDTH - 1,
         topHeight: 100,
@@ -97,7 +83,6 @@ describe('Game', () => {
         passed: false,
       }];
       game.bird.y = 100 + PIPE_GAP / 2;
-      // Manually call the internal score updater if it's exposed, otherwise update()
       if (typeof game._updateScore === 'function') {
         game._updateScore();
       } else {
@@ -106,20 +91,23 @@ describe('Game', () => {
       expect(game.score).toBeGreaterThanOrEqual(1);
     });
 
-    test('highScore updates when current score exceeds it', () => {
+    test('highScore updates when score exceeds previous best', () => {
       game.score = 10;
       game.highScore = 5;
+      // Trigger update path that checks highScore
       if (typeof game._updateScore === 'function') {
         game.pipeManager.pipes = [{
           x: BIRD_X - PIPE_WIDTH - 1,
           topHeight: 100,
           get bottomY() { return this.topHeight + PIPE_GAP; },
-          passed: true, // already counted
+          passed: false,
         }];
+        game._updateScore();
+        expect(game.highScore).toBeGreaterThanOrEqual(10);
+      } else {
+        if (game.score > game.highScore) game.highScore = game.score;
+        expect(game.highScore).toBe(10);
       }
-      // Simulate scoring past highScore
-      if (game.score > game.highScore) game.highScore = game.score;
-      expect(game.highScore).toBe(10);
     });
   });
 

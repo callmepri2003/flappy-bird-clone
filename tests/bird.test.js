@@ -1,8 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
-// Load the Bird class into scope
-eval(fs.readFileSync(path.resolve(__dirname, '../src/bird.js'), 'utf8'));
+loadSrc('../src/bird.js', 'Bird');
 
 describe('Bird', () => {
   let bird;
@@ -64,7 +60,6 @@ describe('Bird', () => {
     test('rotation is clamped to max downward angle', () => {
       bird.vy = 999;
       bird.update();
-      // 80 degrees in radians
       expect(bird.rotation).toBeLessThanOrEqual((80 * Math.PI) / 180 + 0.01);
     });
   });

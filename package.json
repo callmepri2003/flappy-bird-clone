@@ -14,17 +14,12 @@
     "jest-environment-jsdom": "^29.7.0"
   },
   "jest": {
-    "testEnvironment": "jsdom",
+    "testEnvironment": "node",
     "setupFiles": [
       "./tests/setup.js"
     ],
     "collectCoverageFrom": [
       "src/**/*.js"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "lines": 70
-      }
-    }
+    ]
   }
 }

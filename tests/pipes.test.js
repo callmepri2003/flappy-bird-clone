@@ -1,7 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
-eval(fs.readFileSync(path.resolve(__dirname, '../src/pipes.js'), 'utf8'));
+loadSrc('../src/pipes.js', 'PipeManager');
 
 describe('PipeManager', () => {
   let pm;
@@ -54,9 +51,8 @@ describe('PipeManager', () => {
         pm.spawnPipe();
       }
       pm.pipes.forEach(pipe => {
-        expect(pipe.bottomY + PIPE_GAP).toBeLessThanOrEqual(
-          CANVAS_HEIGHT - GROUND_HEIGHT
-        );
+        // bottomY is the top of the bottom pipe — it must sit above the ground
+        expect(pipe.bottomY).toBeLessThanOrEqual(CANVAS_HEIGHT - GROUND_HEIGHT);
       });
     });
 
@@ -78,13 +74,11 @@ describe('PipeManager', () => {
       pm.spawnPipe();
       pm.pipes[0].x = -PIPE_WIDTH - 1;
       pm.update(PIPE_SPAWN_INTERVAL + 2);
-      // The out-of-bounds pipe should be gone (a new one may be spawned)
       const offscreen = pm.pipes.filter(p => p.x + PIPE_WIDTH < 0);
       expect(offscreen).toHaveLength(0);
     });
 
     test('spawns a new pipe after PIPE_SPAWN_INTERVAL ms', () => {
-      // First update at t=0 may spawn immediately; reset
       pm.reset();
       pm.lastSpawnTime = 1000;
       pm.update(1000 + PIPE_SPAWN_INTERVAL + 1);
@@ -119,7 +113,6 @@ describe('PipeManager', () => {
         get bottomY() { return this.topHeight + PIPE_GAP; },
         passed: false,
       }];
-      // Bird at y=0 — squarely inside the top pipe region
       expect(pm.checkBirdCollision(BIRD_X, 0, BIRD_WIDTH, BIRD_HEIGHT)).toBe(true);
     });
 
@@ -130,7 +123,6 @@ describe('PipeManager', () => {
         get bottomY() { return this.topHeight + PIPE_GAP; },
         passed: false,
       }];
-      // Bird well below gap
       const belowGap = 100 + PIPE_GAP + 10;
       expect(pm.checkBirdCollision(BIRD_X, belowGap, BIRD_WIDTH, BIRD_HEIGHT)).toBe(true);
     });

@@ -1,7 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
-eval(fs.readFileSync(path.resolve(__dirname, '../src/ui.js'), 'utf8'));
+loadSrc('../src/ui.js', 'UI');
 
 describe('UI', () => {
   let ui;
