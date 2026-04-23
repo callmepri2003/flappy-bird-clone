@@ -18,8 +18,15 @@ global.COLORS = {
   bird: '#f7d358', birdWing: '#e8c000', birdEye: '#ffffff',
   birdPupil: '#333333', birdBeak: '#f0a030',
   score: '#ffffff', shadow: 'rgba(0,0,0,0.3)',
+  // Premium UI palette
+  uiAmberGold: '#FFD166',
+  uiTeal: '#06D6A0',
+  uiCoral: '#EF476F',
+  uiLavender: '#8B9FE8',
+  uiNavy: '#0D1B2A',
+  uiCream: '#F8F4E3',
 };
-global.STATES = { MENU: 'menu', PLAYING: 'playing', DEAD: 'dead' };
+global.STATES = { MENU: 'menu', PLAYING: 'playing', DEAD: 'dead', READY: 'ready' };
 
 // Stub requestAnimationFrame so game.js bootstrap doesn't spin a real RAF loop
 global.requestAnimationFrame = jest.fn(() => 0);
@@ -63,6 +70,7 @@ function makeCtxStub() {
     scale: noop, beginPath: noop, closePath: noop, fill: noop, stroke: noop,
     fillRect: noop, clearRect: noop, strokeRect: noop, arc: noop, arcTo: noop, ellipse: noop,
     moveTo: noop, lineTo: noop, quadraticCurveTo: noop, bezierCurveTo: noop,
+    clip: noop, rect: noop,
     fillText: jest.fn(), strokeText: noop,
     measureText: () => ({ width: 0 }),
     createLinearGradient: () => ({ addColorStop: noop }),
@@ -70,6 +78,7 @@ function makeCtxStub() {
     fillStyle: '', strokeStyle: '', lineWidth: 1, lineJoin: '', lineCap: '',
     shadowBlur: 0, shadowColor: '', shadowOffsetX: 0, shadowOffsetY: 0,
     font: '', textAlign: '', textBaseline: '', globalAlpha: 1,
+    globalCompositeOperation: 'source-over',
   };
 }
 global.makeCtxStub = makeCtxStub;
