@@ -60,6 +60,15 @@ describe('PipeManager', () => {
       pm.spawnPipe();
       expect(pm.pipes[0].passed).toBe(false);
     });
+
+    test('pipe has an index property that increments with each spawn', () => {
+      pm.spawnPipe();
+      pm.spawnPipe();
+      pm.spawnPipe();
+      expect(pm.pipes[0].index).toBe(0);
+      expect(pm.pipes[1].index).toBe(1);
+      expect(pm.pipes[2].index).toBe(2);
+    });
   });
 
   describe('update()', () => {
@@ -83,6 +92,16 @@ describe('PipeManager', () => {
       pm.lastSpawnTime = 1000;
       pm.update(1000 + PIPE_SPAWN_INTERVAL + 1);
       expect(pm.pipes.length).toBeGreaterThanOrEqual(1);
+    });
+
+    test('frameCount initializes to 0 and increments each update call', () => {
+      expect(pm.frameCount).toBe(0);
+      pm.update(0);
+      expect(pm.frameCount).toBe(1);
+      pm.update(0);
+      expect(pm.frameCount).toBe(2);
+      pm.update(0);
+      expect(pm.frameCount).toBe(3);
     });
   });
 
@@ -112,6 +131,7 @@ describe('PipeManager', () => {
         topHeight: 300,
         get bottomY() { return this.topHeight + PIPE_GAP; },
         passed: false,
+        index: 0,
       }];
       expect(pm.checkBirdCollision(BIRD_X, 0, BIRD_WIDTH, BIRD_HEIGHT)).toBe(true);
     });
@@ -122,6 +142,7 @@ describe('PipeManager', () => {
         topHeight: 100,
         get bottomY() { return this.topHeight + PIPE_GAP; },
         passed: false,
+        index: 0,
       }];
       const belowGap = 100 + PIPE_GAP + 10;
       expect(pm.checkBirdCollision(BIRD_X, belowGap, BIRD_WIDTH, BIRD_HEIGHT)).toBe(true);
@@ -133,9 +154,17 @@ describe('PipeManager', () => {
         topHeight: 200,
         get bottomY() { return this.topHeight + PIPE_GAP; },
         passed: false,
+        index: 0,
       }];
       const midGap = 200 + PIPE_GAP / 2 - BIRD_HEIGHT / 2;
       expect(pm.checkBirdCollision(BIRD_X, midGap, BIRD_WIDTH, BIRD_HEIGHT)).toBe(false);
+    });
+
+    test('checkBirdCollision still passes with premium pipe objects', () => {
+      pm.spawnPipe();
+      // Should not throw; return value is boolean
+      const result = pm.checkBirdCollision(BIRD_X, 200, BIRD_WIDTH, BIRD_HEIGHT);
+      expect(typeof result).toBe('boolean');
     });
   });
 
@@ -143,6 +172,24 @@ describe('PipeManager', () => {
     test('does not throw with a stubbed context', () => {
       pm.spawnPipe();
       expect(() => pm.draw(makeCtxStub())).not.toThrow();
+    });
+
+    test('draw does not throw with premium rendering (multiple pipes, various positions)', () => {
+      pm.spawnPipe();
+      pm.spawnPipe();
+      pm.spawnPipe();
+      // Advance frameCount to exercise shimmer
+      pm.update(0);
+      pm.update(0);
+      pm.update(0);
+      // Move a pipe close to bird to trigger danger proximity
+      pm.pipes[0].x = BIRD_X + 40 + 50; // dist = 50, within 120
+      const ctx = makeCtxStub();
+      // Also need clip support for shimmer
+      ctx.rect = () => {};
+      ctx.clip = () => {};
+      ctx.globalCompositeOperation = 'source-over';
+      expect(() => pm.draw(ctx)).not.toThrow();
     });
   });
 });

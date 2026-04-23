@@ -87,6 +87,7 @@ function makeCtxStub() {
     scale: noop, beginPath: noop, closePath: noop, fill: noop, stroke: noop,
     fillRect: noop, clearRect: noop, strokeRect: noop, arc: noop, arcTo: noop, ellipse: noop,
     moveTo: noop, lineTo: noop, quadraticCurveTo: noop, bezierCurveTo: noop,
+    clip: noop, rect: noop,
     fillText: jest.fn(), strokeText: noop,
     measureText: () => ({ width: 0 }),
     createLinearGradient: () => ({ addColorStop: noop }),
