@@ -15,9 +15,22 @@ global.COLORS = {
   sky: '#70c5ce', skyBottom: '#a8e6cf',
   ground: '#ded895', groundDark: '#c8b560',
   pipe: '#73bf2e', pipeDark: '#5a9922', pipeBorder: '#4a8a1a',
-  bird: '#f7d358', birdWing: '#e8c000', birdEye: '#ffffff',
-  birdPupil: '#333333', birdBeak: '#f0a030',
+  bird: '#f7d358', birdWing: '#e040fb', birdEye: '#ffffff',
+  birdPupil: '#000d14', birdBeak: '#f0a030',
   score: '#ffffff', shadow: 'rgba(0,0,0,0.3)',
+  // Premium synthwave bird colours
+  birdCore: '#ffe8ff',
+  birdBody: '#ff6ef7',
+  birdMid: '#c732e8',
+  birdShadow: '#6a1080',
+  birdEyeGlow: 'rgba(255,120,255,0.25)',
+  birdSclera: '#f5eeff',
+  birdIrisOuter: '#00e5ff',
+  birdIrisMid: '#0077aa',
+  birdIrisInner: '#003344',
+  birdBeakLight: '#ff9f40',
+  birdBeakDark: '#b35a00',
+  birdBeakStroke: '#7a3a00',
 };
 global.STATES = { MENU: 'menu', PLAYING: 'playing', DEAD: 'dead' };
 
@@ -70,6 +83,7 @@ function makeCtxStub() {
     fillStyle: '', strokeStyle: '', lineWidth: 1, lineJoin: '', lineCap: '',
     shadowBlur: 0, shadowColor: '', shadowOffsetX: 0, shadowOffsetY: 0,
     font: '', textAlign: '', textBaseline: '', globalAlpha: 1,
+    globalCompositeOperation: 'source-over',
   };
 }
 global.makeCtxStub = makeCtxStub;
